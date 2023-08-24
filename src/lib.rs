@@ -136,19 +136,30 @@ impl DesktopEnvironment {
     std::env::var("XDG_CURRENT_DESKTOP")
       .ok()
       .as_deref()
-      .and_then(|de| match de {
-        "Cinnamon" => Some(DesktopEnvironment::Cinnamon),
-        "ENLIGHTENMENT" => Some(DesktopEnvironment::Enlightenment),
-        "GNOME" => Some(DesktopEnvironment::Gnome),
-        "KDE" => Some(DesktopEnvironment::Kde),
-        "LXDE" => Some(DesktopEnvironment::Lxde),
-        "LXQt" => Some(DesktopEnvironment::Lxqt),
-        "MATE" => Some(DesktopEnvironment::Mate),
-        "pop:GNOME" => Some(DesktopEnvironment::Gnome),
-        "Unity" => Some(DesktopEnvironment::Unity),
-        "X-Cinnamon" => Some(DesktopEnvironment::Cinnamon),
-        "XFCE" => Some(DesktopEnvironment::Xfce),
-        _ => None,
+      .and_then(|mut de| {
+        // Some systems provide the value in the format of "os:DE" (e.g. "ubuntu:GNOME"),
+        // but only the last part is of relevance.
+        if de.contains(':') {
+          let parts = de.rsplit_once(':');
+          if let Some(parts) = parts {
+            let (_os, de_part) = parts;
+            de = de_part;
+          }
+        }
+
+        match de {
+          "Cinnamon" => Some(DesktopEnvironment::Cinnamon),
+          "ENLIGHTENMENT" => Some(DesktopEnvironment::Enlightenment),
+          "GNOME" => Some(DesktopEnvironment::Gnome),
+          "KDE" => Some(DesktopEnvironment::Kde),
+          "LXDE" => Some(DesktopEnvironment::Lxde),
+          "LXQt" => Some(DesktopEnvironment::Lxqt),
+          "MATE" => Some(DesktopEnvironment::Mate),
+          "Unity" => Some(DesktopEnvironment::Unity),
+          "X-Cinnamon" => Some(DesktopEnvironment::Cinnamon),
+          "XFCE" => Some(DesktopEnvironment::Xfce),
+          _ => None,
+        }
       })
   }
 }
